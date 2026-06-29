@@ -1,0 +1,6 @@
+streamlit>=1.40
+openai>=1.50
+ddgs>=9.0
+wikipedia>=1.4.0
+python-dotenv>=1.0
+pytest>=8.0
