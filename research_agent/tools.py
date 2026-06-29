@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from ddgs import DDGS
 
+from .config import settings
 from .models import Source
 
 
@@ -18,7 +19,8 @@ def web_search(query: str, max_results: int = 5) -> list[Source]:
     keep going instead of crashing on one bad query.
     """
     try:
-        with DDGS() as ddgs:
+        # verify=False is only used on corporate networks with SSL inspection.
+        with DDGS(verify=not settings.disable_ssl_verify) as ddgs:
             results = ddgs.text(query, max_results=max_results)
     except Exception:  # noqa: BLE001 - network/rate-limit issues shouldn't crash a run
         return []

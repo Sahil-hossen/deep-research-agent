@@ -120,6 +120,13 @@ LLM_PROVIDER=ollama
 OLLAMA_MODEL=llama3.1
 ```
 
+## Corporate networks (SSL inspection)
+
+If you see `CERTIFICATE_VERIFY_FAILED` errors, you're likely behind a corporate
+proxy that inspects TLS with a self-signed root certificate. Set
+`DISABLE_SSL_VERIFY=true` in your `.env` to skip verification. Leave it `false`
+everywhere else.
+
 ## Tests
 
 ```bash

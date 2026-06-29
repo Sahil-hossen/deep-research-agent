@@ -11,6 +11,7 @@ import json
 from functools import lru_cache
 from typing import Any
 
+import httpx
 from openai import OpenAI
 
 from .config import settings
@@ -28,7 +29,13 @@ def get_client() -> OpenAI:
             "key from https://console.groq.com/keys (or switch LLM_PROVIDER to "
             "'ollama' for fully offline use)."
         )
-    return OpenAI(base_url=settings.base_url, api_key=settings.api_key)
+    # On corporate networks with SSL inspection, allow skipping verification.
+    http_client = httpx.Client(verify=False) if settings.disable_ssl_verify else None
+    return OpenAI(
+        base_url=settings.base_url,
+        api_key=settings.api_key,
+        http_client=http_client,
+    )
 
 
 def chat(

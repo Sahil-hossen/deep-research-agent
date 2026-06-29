@@ -28,9 +28,18 @@ class Settings:
     max_search_results: int = 5
     max_revisions: int = 1
 
+    # Skip TLS verification — only needed on corporate networks that do SSL
+    # inspection with a self-signed root certificate. Off by default.
+    disable_ssl_verify: bool = False
+
+
+def _env_flag(name: str) -> bool:
+    return os.getenv(name, "false").lower().strip() in {"1", "true", "yes"}
+
 
 def load_settings() -> Settings:
     provider = os.getenv("LLM_PROVIDER", "groq").lower().strip()
+    disable_ssl_verify = _env_flag("DISABLE_SSL_VERIFY")
 
     if provider == "ollama":
         return Settings(
@@ -39,6 +48,7 @@ def load_settings() -> Settings:
             base_url=os.getenv("OLLAMA_BASE_URL", "http://localhost:11434/v1"),
             # Ollama ignores the key but the OpenAI SDK requires a non-empty value.
             api_key="ollama",
+            disable_ssl_verify=disable_ssl_verify,
         )
 
     # Default: Groq free tier.
@@ -47,6 +57,7 @@ def load_settings() -> Settings:
         model=os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile"),
         base_url=GROQ_BASE_URL,
         api_key=os.getenv("GROQ_API_KEY", ""),
+        disable_ssl_verify=disable_ssl_verify,
     )
 
 
