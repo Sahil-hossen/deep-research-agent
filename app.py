@@ -6,12 +6,32 @@ real time, and read the final cited report.
 
 from __future__ import annotations
 
+import os
+
 import streamlit as st
 
-from research_agent.config import settings
-from research_agent.llm import LLMError
-from research_agent.models import Critique, Finding
-from research_agent.orchestrator import run_research
+
+def _bridge_secrets_to_env() -> None:
+    """Copy Streamlit Cloud secrets into env vars the config layer reads.
+
+    Locally this is a no-op (no secrets file), so the .env file is still used.
+    Runs before importing research_agent because settings load at import time.
+    """
+    keys = ("LLM_PROVIDER", "GROQ_API_KEY", "GROQ_MODEL", "DISABLE_SSL_VERIFY")
+    try:
+        for key in keys:
+            if key in st.secrets:
+                os.environ.setdefault(key, str(st.secrets[key]))
+    except Exception:  # noqa: BLE001 - no secrets file locally is fine
+        pass
+
+
+_bridge_secrets_to_env()
+
+from research_agent.config import settings  # noqa: E402
+from research_agent.llm import LLMError  # noqa: E402
+from research_agent.models import Critique, Finding  # noqa: E402
+from research_agent.orchestrator import run_research  # noqa: E402
 
 st.set_page_config(page_title="Deep Research Agent", page_icon="🔎", layout="centered")
 
